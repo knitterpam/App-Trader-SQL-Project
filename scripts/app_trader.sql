@@ -1,4 +1,5 @@
 /*
+-- getting familiar with dataset, checking out names
 SELECT app_store_apps.name, play_store_apps.name
 FROM app_store_apps LEFT JOIN play_store_apps
 USING(name)
@@ -10,15 +11,14 @@ USING(name)
 WHERE app_store_apps.name is not null AND play_store_apps.name is not null
 ORDER by app_price DESC;
 
--Comparing prices - cheaper on Apple
+--Comparing prices - cheaper on Apple
 SELECT app_store_apps.name AS app_name, play_store_apps.name AS play_name, app_store_apps.price AS app_price, play_store_apps.price AS play_price
 FROM app_store_apps LEFT JOIN play_store_apps
 USING(name)
 WHERE app_store_apps.name is not null AND play_store_apps.name is not null
 ORDER by app_price DESC;
 
-ASSUMPTION A:
-
+-- Nicole's code for ASSUMPTION A:
 SELECT app_store_apps.name AS app_name, play_store_apps.name AS play_name,
 (CAST(app_store_apps.price as decimal) *10000) AS app_purchase_price,
 (CAST(REPLACE(TRIM(play_store_apps.price), '$', '') AS decimal) *10000) AS play_purchase_price
@@ -45,7 +45,7 @@ USING (name)
 GROUP BY app_store_apps.name, play_store_apps.name
 ORDER BY appstore_avg_rating DESC, playstore_avg_rating DESC;
 */
-
+/*
 --Explore app genres and categories from each db.
 -- 23 rows in Apple store, 119 in Android store
 -- (NOTE: Android genres offer subcategories using genres,
@@ -58,8 +58,8 @@ FROM play_store_apps;
 
 SELECT DISTINCT category
 FROM play_store_apps;
-
-
+*/
+/*
 --Summarize price info by genre for app_store_apps
 -- initially used WHERE price <> 0 after FROM stmt, but that excludes free apps:
 SELECT primary_genre,
@@ -102,7 +102,8 @@ SELECT name, rating, to_number(price, 'G999D99') AS play_store_price, PROFIT HER
 FROM play_store_apps
 ORDER BY play_store_price DESC
 LIMIT 25;	
-
+*/
+/*
 --Nicole and Jacob contributed to joining app tables, calculating purch price
 --Pam added genre and rating, and order by info
 SELECT app_store_apps.name AS app_name,
@@ -156,3 +157,20 @@ WHERE app_store_apps.name is not null
 ORDER by ps_apps_review DESC, ps_apps_rating DESC
 LIMIT 25;
 
+--Jacob's code, combined tables using price and rating as primary searches
+SELECT a.name, cast(a.review_count as integer) + p.reviews as combined_reviews,
+	a.primary_genre as genre,
+	ROUND(a.rating, 1) as app_rating,
+	ROUND(p.rating, 1) as play_rating,
+	a.price as app_price,
+	p.price as play_price
+FROM app_store_apps as a
+JOIN (SELECT name, max(review_count) AS reviews, rating, price
+FROM play_store_apps
+group by price, rating, name) AS p
+ON a.name = p.name
+WHERE a.rating >= '4.5' AND p.rating >= '4.3'
+	AND a.price <= '1' AND p.price <= '1'
+ORDER BY combined_reviews DESC
+LIMIT 25;
+*/
